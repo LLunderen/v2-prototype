@@ -10,10 +10,15 @@
 //Setting up each of the readers
 SoftwareSerial RFID1(10, 20);
 SoftwareSerial RFID2(11, 21);
-SoftwareSerial RFID3(12, 22);
+SoftwareSerial RFID3(12, 22); 
 SoftwareSerial RFID4(13, 23);
 SoftwareSerial RFID5(50, 24);
-SoftwareSerial RFID6(62, 25);
+SoftwareSerial RFID6(51, 25);
+SoftwareSerial RFID7(62, 26);
+SoftwareSerial RFID8(63, 27);
+SoftwareSerial RFID9(64, 28);
+//Declaring photoresistor pins
+int photoRes1 = 30;
 
 //Blocks are made into String instead of HEX
 String block1 = "770106113251";
@@ -31,7 +36,7 @@ String winningArray[] = {block1, block2, block3, block4, block5, block6, block7,
 //Declaring variables
 int button = 2;
 int buttonCounter = 1;
-int noOfReaders = 6;
+int noOfReaders = 9;
 int listeningPort = 0;
 int buttonState;
 int lastButtonState = 0;
@@ -138,6 +143,9 @@ void setup()
   RFID4.begin(9600);
   RFID5.begin(9600);
   RFID6.begin(9600);
+  RFID7.begin(9600);
+  RFID8.begin(9600);
+  RFID9.begin(9600);
   shuffleBlocks();
   printPosition();
 }
@@ -176,6 +184,21 @@ void loop()
     RFID6.listen();
     listeningPort = 6;
     Serial.println("6 is reading");
+  }
+  if(buttonCounter == 7 && listeningPort != 7) {
+    RFID7.listen();
+    listeningPort = 7;
+    Serial.println("7 is reading");
+  }
+  if(buttonCounter == 8 && listeningPort != 8) {
+    RFID8.listen();
+    listeningPort = 8;
+    Serial.println("8 is reading");
+  }
+  if(buttonCounter == 9 && listeningPort != 9) {
+    RFID9.listen();
+    listeningPort = 9;
+    Serial.println("9 is reading");
   }
 
 //Reading the RFID readers 
@@ -254,6 +277,45 @@ void loop()
         reading += Payload1[i];
       } 
       Serial.print("6 reads: ");
+      Serial.print(getBlock(reading));
+      Serial.println();
+    }  
+  }
+  while (RFID7.available() > 0 && RFID7.isListening()) 
+  {
+    String reading;
+    uint8_t c = RFID7.read(); //Makes sure the tag is only read once
+    if (RDM6300.decode(c)) {
+      for (int i=0; i < 5; i++){
+        reading += Payload1[i];
+      } 
+      Serial.print("7 reads: ");
+      Serial.print(getBlock(reading));
+      Serial.println();
+    }  
+  }
+  while (RFID8.available() > 0 && RFID8.isListening()) 
+  {
+    String reading;
+    uint8_t c = RFID8.read(); //Makes sure the tag is only read once
+    if (RDM6300.decode(c)) {
+      for (int i=0; i < 5; i++){
+        reading += Payload1[i];
+      } 
+      Serial.print("8 reads: ");
+      Serial.print(getBlock(reading));
+      Serial.println();
+    }  
+  }
+  while (RFID9.available() > 0 && RFID9.isListening()) 
+  {
+    String reading;
+    uint8_t c = RFID9.read(); //Makes sure the tag is only read once
+    if (RDM6300.decode(c)) {
+      for (int i=0; i < 5; i++){
+        reading += Payload1[i];
+      } 
+      Serial.print("9 reads: ");
       Serial.print(getBlock(reading));
       Serial.println();
     }  
