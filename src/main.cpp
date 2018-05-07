@@ -18,18 +18,6 @@ SoftwareSerial RFID7(62, 26);
 SoftwareSerial RFID8(63, 27);
 SoftwareSerial RFID9(64, 28);
 
-//Declaring photoresistor pins
-int photoRes1 = 30;
-int photoRes2 = 31;
-int photoRes3 = 32;
-int photoRes4 = 33;
-int photoRes5 = 34;
-int photoRes6 = 35;
-int photoRes7 = 36;
-int photoRes8 = 37;
-int photoRes9 = 38;
-int photoResistorPins[] {photoRes1, photoRes2, photoRes3, photoRes4, photoRes5, photoRes6, photoRes7, photoRes8, photoRes9};
-
 //Declaring power pins for the readers, so only one reader is on at a time
 int powerPin1 = 40;
 int powerPin2 = 41;
@@ -55,16 +43,16 @@ String block8 = "8902936100";
 String block9 = "750130229191";
 String RFIDtagArray[] = {block1, block2, block3, block4, block5, block6, block7, block8, block9};
 String winningArray[] = {block1, block2, block3, block4, block5, block6, block7, block8, block9};
+String currentBoard[9];
 
 //Declaring variables
-int button = 2;
-int buttonCounter = 1;
 int noOfReaders = 9;
 int listeningPort = 0;
-int buttonState;
-int lastButtonState = 0;
 int moves = 0;
 int tempRollingValue = 1;
+int tempTestValue = 0;
+int posCounter = 1;
+long delayTimer = 50;
 
 
 uint8_t Payload1[6]; // used for read comparisons
@@ -74,6 +62,11 @@ void gameWon() {// When the game is won a message is shown and the game is soft-
   Serial.print("You've won the game!");
   Serial.println("To start a new game, press the reset button!");
   while(true) {
+  }
+}
+void resetPayload() {
+  for(int i = 0; i < 6; i++) {
+    Payload1[i] = 0;
   }
 }
 void compareArrays() { // Compare the current board, to the winning board
@@ -120,7 +113,7 @@ String getBlock(String b) { //Returns the block in a readable format
 }
 void printPosition() { // Print the position of every block
   for(int i = 0; i < noOfReaders; i++) {
-    Serial.print(getBlock(RFIDtagArray[i]));
+    Serial.print(getBlock(currentBoard[i]));
     Serial.print(" ");
     if((i + 1) % 3 == 0) {
       Serial.println("");
@@ -160,27 +153,106 @@ void turnOffAllPower() { // Makes all readers able to read
     digitalWrite(powerTransistorPins[i], LOW);
   }
 }
-void turnOnAllPower() { // Makes so all readers can't read
+void turnOnAllPower() { // Makes so all readers can read
   for(int i = 0; i < noOfReaders; i++) {
     digitalWrite(powerTransistorPins[i], HIGH);
   }
 }
-void turnOnOnePin(int pin) {
+void turnOnOnePin(int position) { // Turns on one specific pin
+  int pin = position - 1;
   digitalWrite(powerTransistorPins[pin], HIGH);
 }
-void turnOffOnePin(int pin) {
+void turnOffOnePin(int pin) { // Turns off a spceific pin
   digitalWrite(powerTransistorPins[pin], LOW);
 }
-void setup()
-{
+SoftwareSerial findReader(int p) {
+  switch(p) {
+    case 1:
+      return RFID1;
+    case 2:
+      return RFID2;
+    case 3:
+      return RFID3;
+    case 4:
+      return RFID4;
+    case 5:
+      return RFID5;
+    case 6:
+      return RFID6;
+    case 7:
+      return RFID7;
+    case 8:
+      return RFID8;
+    case 9:
+      return RFID9;
+  }
+  return RFID1;
+}
+void testingAnotherReadingFunction(int p) {
+  int arrayPos = p - 1;
+}
+void listeningFunction(int p) { //Used to listen on the right port
+  switch(p) {
+    case 1:
+      RFID1.listen();
+      break;
+    case 2:
+      RFID2.listen();
+      break;
+    case 3:
+      RFID3.listen();
+      break;
+    case 4:
+      RFID4.listen();
+      break;
+    case 5:
+      RFID5.listen();
+      break;
+    case 6:
+      RFID6.listen();
+      break;
+    case 7:
+      RFID7.listen();
+      break;
+    case 8:
+      RFID8.listen();
+      break;
+    case 9:
+      RFID9.listen();
+      break;
+  }
+}
+
+void readingFunction() {
+  int p = posCounter;
+  int arrayValue = p - 1;
+  long startTime = millis();
+  long currentTime;
+
+  turnOffAllPower();
+  while(currentTime - startTime < delayTimer) {
+    currentTime = millis();
+    turnOnOnePin(p);
+    listeningFunction(p);
+  }
+  testingAnotherReadingFunction(p);
+
+  if(posCounter == noOfReaders) {
+    posCounter = 1;
+    printPosition();
+  } else {
+    posCounter++;
+  }
+  delay(10);
+}
+void setup() {
   randomSeed(analogRead(A0) + digitalRead(LED_BUILTIN));
-  pinMode(button, OUTPUT);
   for (int i = 0; i < noOfReaders; i++) {
     pinMode(powerTransistorPins[i], OUTPUT);
   }
   turnOnAllPower();
   Serial.begin(9600);  // start serial to PC 
-//Starting serial with each reader
+  //Starting serial with each reader
   RFID1.begin(9600);
   RFID2.begin(9600);
   RFID3.begin(9600);
@@ -194,106 +266,131 @@ void setup()
   printPosition();
   turnOffAllPower();
 }
-
-void loop()
-{
-  buttonState = digitalRead(button);
-
-//Changing the listening port, so only one is active at a time
+void loop() {
+  readingFunction();
+  /*
+  //Changing the listening port, so only one is active at a time
   if(tempRollingValue == 1 && listeningPort != 1) {
     turnOffAllPower();
-    turnOnOnePin(0);
+    turnOnOnePin(1);
     RFID1.listen();
     listeningPort = 1;
     Serial.println("1 is reading");
   }
   if(tempRollingValue == 2 && listeningPort != 2) {
     turnOffAllPower();
-    turnOnOnePin(1);
+    turnOnOnePin(2);
     RFID2.listen();
     listeningPort = 2;
     Serial.println("2 is reading");
   } 
   if(tempRollingValue == 3 && listeningPort != 3) {
     turnOffAllPower();
-    turnOnOnePin(2);
+    turnOnOnePin(3);
     RFID3.listen();
     listeningPort = 3;
     Serial.println("3 is reading");
   }
   if(tempRollingValue == 4 && listeningPort != 4) {
     turnOffAllPower();
-    turnOnOnePin(3);
+    turnOnOnePin(4);
     RFID4.listen();
     listeningPort = 4;
     Serial.println("4 is reading");
   }
   if(tempRollingValue == 5 && listeningPort != 5) {
     turnOffAllPower();
-    turnOnOnePin(4);
+    turnOnOnePin(5);
     RFID5.listen();
     listeningPort = 5;
     Serial.println("5 is reading");
   }
   if(tempRollingValue == 6 && listeningPort != 6) {
     turnOffAllPower();
-    turnOnOnePin(5);
+    turnOnOnePin(6);
     RFID6.listen();
     listeningPort = 6;
     Serial.println("6 is reading");
   }
   if(tempRollingValue == 7 && listeningPort != 7) {
     turnOffAllPower();
-    turnOnOnePin(6);
+    turnOnOnePin(7);
     RFID7.listen();
     listeningPort = 7;
     Serial.println("7 is reading");
   }
   if(tempRollingValue == 8 && listeningPort != 8) {
     turnOffAllPower();
-    turnOnOnePin(7);
+    turnOnOnePin(8);
     RFID8.listen();
     listeningPort = 8;
     Serial.println("8 is reading");
   }
   if(tempRollingValue == 9 && listeningPort != 9) {
     turnOffAllPower();
-    turnOnOnePin(8);
+    turnOnOnePin(9);
     RFID9.listen();
     listeningPort = 9;
     Serial.println("9 is reading");
   }
 
-//Reading the RFID readers 
+  //Reading the RFID readers 
+  */
+  int arrayPos = posCounter - 1;
+  if(posCounter == 1) {
+  while(RFID1.available() > 0 && RFID1.isListening()) {
+    String reading;
+    uint8_t c = RFID1.read();
+    Serial.println("heyo bitch");
+
+    if (RDM6300.decode(c)) {
+      for(int i=0; i < 5; i++) {
+        reading += Payload1[i];
+      } 
+      Serial.println(getBlock(reading));
+      currentBoard[arrayPos] = getBlock(reading);
+    } else {
+      currentBoard[arrayPos] = "-";
+      break;
+    }
+  }
+}
+  /*
   if(tempRollingValue == 1 && listeningPort == 1) {
     while (RFID1.available() > 0 && RFID1.isListening()) 
     {
       String reading;
       uint8_t c = RFID1.read();
+
       if (RDM6300.decode(c)) {
-        for(int i=0; i < 5; i++){
+        for(int i=0; i < 5; i++) {
           reading += Payload1[i];
         } 
-        Serial.print("1 reads: ");
-        Serial.print(getBlock(reading));
-        Serial.println();
-      }  
+        currentBoard[0] = getBlock(reading);
+      } else {
+        currentBoard[0] = "-";
+      }
     }
     tempRollingValue = 2;
   }
-  while (RFID2.available() > 0 && RFID2.isListening()) 
-  {
-    String reading;
-    uint8_t c = RFID2.read();
-    if (RDM6300.decode(c)) {
-      for (int i=0; i < 5; i++){
-        reading += Payload1[i];
-      } 
-      Serial.print("2 reads: ");
-      Serial.print(getBlock(reading));
-      Serial.println();
-    }  
-    tempRollingValue = 3;
+  if( tempRollingValue == 1 && listeningPort == 1) {
+    while (RFID2.available() > 0 && RFID2.isListening()) 
+    {
+      String reading;
+      uint8_t c = RFID2.read();
+      if (RDM6300.decode(c)) {
+        for (int i=0; i < 5; i++){
+          reading += Payload1[i];
+        } 
+        Serial.print("2 reads: ");
+        Serial.print(getBlock(reading));
+        Serial.println();
+        currentBoard[1] = getBlock(reading);
+      } else {
+        currentBoard[1] = "-";
+      }
+      tempRollingValue = 3;
+    }
   }
   while (RFID3.available() > 0 && RFID3.isListening()) 
   {
@@ -393,6 +490,7 @@ void loop()
     }  
     tempRollingValue = 1;
   }
+*/
 }
 /* Old RFID reading method
 while (RFID5.available() > 0 && RFID5.isListening()) 
