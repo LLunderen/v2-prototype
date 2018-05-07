@@ -119,7 +119,6 @@ void printPosition() { // Print the position of every block
   }
   compareArrays();
 }
-
 void shuffleBlocks() {
   for (int i=0; i < noOfReaders; i++) {
     int n = random(0, noOfReaders); 
@@ -204,7 +203,6 @@ void setup() {
   RFID8.begin(9600);
   RFID9.begin(9600);
   shuffleBlocks();
-  printPosition();
   turnOffAllPower();
 }
 void loop() {
@@ -212,7 +210,7 @@ void loop() {
 
   if(posCounter == 1 && listeningPort == 1) {
     int arrayPos = posCounter - 1;
-    if(tries > 10) {
+    if(tries > 5) {
       tries = 0;
       posCounter = 2;
       currentBoard[arrayPos] = "-";
@@ -236,7 +234,7 @@ void loop() {
 
   if(posCounter == 2 && listeningPort == 2) {
     int arrayPos = posCounter - 1;
-    if(tries > 10) {
+    if(tries > 5) {
       tries = 0;
       posCounter = 3;
       currentBoard[arrayPos] = "-";
@@ -259,7 +257,7 @@ void loop() {
   }
   if(posCounter == 3 && listeningPort == 3) {
     int arrayPos = posCounter - 1;
-    if(tries > 10) {
+    if(tries > 5) {
       tries = 0;
       posCounter = 4;
       currentBoard[arrayPos] = "-";
@@ -282,7 +280,7 @@ void loop() {
   }
   if(posCounter == 4 && listeningPort == 4) {
     int arrayPos = posCounter - 1;
-    if(tries > 10) {
+    if(tries > 5) {
       tries = 0;
       posCounter = 5;
       currentBoard[arrayPos] = "-";
@@ -305,7 +303,7 @@ void loop() {
   }
   if(posCounter == 5 && listeningPort == 5) {
     int arrayPos = posCounter - 1;
-    if(tries > 10) {
+    if(tries > 5) {
       tries = 0;
       posCounter = 6;
       currentBoard[arrayPos] = "-";
@@ -328,7 +326,7 @@ void loop() {
   }
   if(posCounter == 6 && listeningPort == 6) {
     int arrayPos = posCounter - 1;
-    if(tries > 10) {
+    if(tries > 5) {
       tries = 0;
       posCounter = 7;
       currentBoard[arrayPos] = "-";
@@ -352,7 +350,7 @@ void loop() {
   
   if(posCounter == 7 && listeningPort == 7) {
     int arrayPos = posCounter - 1;
-    if(tries > 10) {
+    if(tries > 5) {
       tries = 0;
       posCounter = 8;
       currentBoard[arrayPos] = "-";
@@ -376,7 +374,7 @@ void loop() {
   
   if(posCounter == 8 && listeningPort == 8) {
     int arrayPos = posCounter - 1;
-    if(tries > 10) {
+    if(tries > 5) {
       tries = 0;
       posCounter = 9;
       currentBoard[arrayPos] = "-";
@@ -399,7 +397,7 @@ void loop() {
   }
   if(posCounter == 9 && listeningPort == 9) {
     int arrayPos = posCounter - 1;
-    if(tries > 10) {
+    if(tries > 5) {
       tries = 0;
       posCounter = 10;
       currentBoard[arrayPos] = "-";
@@ -429,5 +427,5 @@ void loop() {
       oldBoard[i] = currentBoard[i];
     }
   }
-  delay(10);
+  delay(15);
 }
