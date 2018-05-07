@@ -41,14 +41,16 @@ String block6 = "89029113118";
 String block7 = "77010614372";
 String block8 = "8902936100";
 String block9 = "750130229191";
-String RFIDtagArray[] = {block1, block2, block3, block4, block5, block6, block7, block8, block9};
-String winningArray[] = {block1, block2, block3, block4, block5, block6, block7, block8, block9};
+String RFIDtagArray[] = {"A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"};
+String winningArray[] = {"A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"};
 String currentBoard[] = {"-", "-", "-", "-", "-", "-", "-", "-", "-"};
+String oldBoard[9];
 
 //Declaring variables
 int noOfReaders = 9;
 int listeningPort = 0;
 int posCounter = 1;
+int tries = 0;
 
 
 uint8_t Payload1[6]; // used for read comparisons
@@ -68,7 +70,7 @@ void resetPayload() {
 void compareArrays() { // Compare the current board, to the winning board
   int winning = 0;
   for(int i = 0; i < noOfReaders; i++) {
-    if(RFIDtagArray[i] == winningArray[i]) {
+    if(currentBoard[i] == winningArray[i]) {
       winning++;
     }
   }
@@ -79,31 +81,31 @@ void compareArrays() { // Compare the current board, to the winning board
 
 String getBlock(String b) { //Returns the block in a readable format
   if(b == block1) {
-    return "A1";
+    return RFIDtagArray[0];
   }
   if(b == block2) {
-    return "A2";
+    return RFIDtagArray[1];
   }
   if(b == block3) {
-    return "A3";
+    return RFIDtagArray[2];
   }
   if(b == block4) {
-    return "B1";
+    return RFIDtagArray[3];
   }
   if(b == block5) {
-    return "B2";
+    return RFIDtagArray[4];
   }
   if(b == block6) {
-    return "B3";
+    return RFIDtagArray[5];
   }
   if(b == block7) {
-    return "C1";
+    return RFIDtagArray[6];
   }
   if(b == block8) {
-    return "C2";
+    return RFIDtagArray[7];
   }
   if(b == block9) {
-    return "C3";
+    return RFIDtagArray[8];
   }
   return "";
 }
@@ -115,26 +117,9 @@ void printPosition() { // Print the position of every block
       Serial.println("");
     }
   }
-}
-void switchPlace(String tag1, String tag2) { //Switches coordinates of the two pins
-  int foundTag1;
-  int foundTag2;
-  for(int i = 0; i < noOfReaders; i++) {
-    if (tag1 == RFIDtagArray[i]) {
-      foundTag1 = i;
-    }
-  }
-  for(int i = 0; i < noOfReaders; i++) {
-    if (tag2 == RFIDtagArray[i]) {
-      foundTag2 = i;
-    }
-  }
-  String temp = RFIDtagArray[foundTag1];
-  RFIDtagArray[foundTag1] = RFIDtagArray[foundTag2];
-  RFIDtagArray[foundTag2] = temp;
-  printPosition();
   compareArrays();
 }
+
 void shuffleBlocks() {
   for (int i=0; i < noOfReaders; i++) {
     int n = random(0, noOfReaders); 
@@ -197,6 +182,7 @@ void prepareReader(int p) {
     turnOffAllPower();
     turnOnOnePin(p);
     listeningFunction(p);
+    tries = 0;
   }
   listeningPort = p;
 }
@@ -226,7 +212,13 @@ void loop() {
 
   if(posCounter == 1 && listeningPort == 1) {
     int arrayPos = posCounter - 1;
+    if(tries > 10) {
+      tries = 0;
+      posCounter = 2;
+      currentBoard[arrayPos] = "-";
+    }
     while(RFID1.available() > 0 && RFID1.isListening()) {
+      tries = 0;
       String reading;
       uint8_t c = RFID1.read();
       posCounter = 2;
@@ -237,8 +229,6 @@ void loop() {
         String foundBlock = getBlock(reading);
         if(foundBlock.length() > 1) {
           currentBoard[arrayPos] = foundBlock;
-        } else {
-          currentBoard[arrayPos] = "Blank";
         }
       } 
     }
@@ -246,7 +236,13 @@ void loop() {
 
   if(posCounter == 2 && listeningPort == 2) {
     int arrayPos = posCounter - 1;
+    if(tries > 10) {
+      tries = 0;
+      posCounter = 3;
+      currentBoard[arrayPos] = "-";
+    }
     while(RFID2.available() > 0 && RFID2.isListening()) {
+      tries = 0;
       String reading;
       uint8_t c = RFID2.read();
       posCounter = 3;
@@ -257,15 +253,19 @@ void loop() {
         String foundBlock = getBlock(reading);
         if(foundBlock.length() > 1) {
           currentBoard[arrayPos] = foundBlock;
-        } else {
-          currentBoard[arrayPos] = "Blank";
         }
       } 
     }
   }
   if(posCounter == 3 && listeningPort == 3) {
     int arrayPos = posCounter - 1;
+    if(tries > 10) {
+      tries = 0;
+      posCounter = 4;
+      currentBoard[arrayPos] = "-";
+    }
     while(RFID3.available() > 0 && RFID3.isListening()) {
+      tries = 0;
       String reading;
       uint8_t c = RFID3.read();
       posCounter = 4;
@@ -276,15 +276,19 @@ void loop() {
         String foundBlock = getBlock(reading);
         if(foundBlock.length() > 1) {
           currentBoard[arrayPos] = foundBlock;
-        } else {
-          currentBoard[arrayPos] = "Blank";
         }
       } 
     }
   }
   if(posCounter == 4 && listeningPort == 4) {
     int arrayPos = posCounter - 1;
+    if(tries > 10) {
+      tries = 0;
+      posCounter = 5;
+      currentBoard[arrayPos] = "-";
+    }
     while(RFID4.available() > 0 && RFID4.isListening()) {
+      tries = 0;
       String reading;
       uint8_t c = RFID4.read();
       posCounter = 5;
@@ -295,15 +299,19 @@ void loop() {
         String foundBlock = getBlock(reading);
         if(foundBlock.length() > 1) {
           currentBoard[arrayPos] = foundBlock;
-        } else {
-          currentBoard[arrayPos] = "Blank";
         }
       } 
     }
   }
   if(posCounter == 5 && listeningPort == 5) {
     int arrayPos = posCounter - 1;
+    if(tries > 10) {
+      tries = 0;
+      posCounter = 6;
+      currentBoard[arrayPos] = "-";
+    }
     while(RFID5.available() > 0 && RFID5.isListening()) {
+      tries = 0;
       String reading;
       uint8_t c = RFID5.read();
       posCounter = 6;
@@ -314,15 +322,19 @@ void loop() {
         String foundBlock = getBlock(reading);
         if(foundBlock.length() > 1) {
           currentBoard[arrayPos] = foundBlock;
-        } else {
-          currentBoard[arrayPos] = "Blank";
         }
       } 
     }
   }
   if(posCounter == 6 && listeningPort == 6) {
     int arrayPos = posCounter - 1;
+    if(tries > 10) {
+      tries = 0;
+      posCounter = 7;
+      currentBoard[arrayPos] = "-";
+    }
     while(RFID6.available() > 0 && RFID6.isListening()) {
+      tries = 0;
       String reading;
       uint8_t c = RFID6.read();
       posCounter = 7;
@@ -333,8 +345,6 @@ void loop() {
         String foundBlock = getBlock(reading);
         if(foundBlock.length() > 1) {
           currentBoard[arrayPos] = foundBlock;
-        } else {
-          currentBoard[arrayPos] = "Blank";
         }
       } 
     }
@@ -342,7 +352,13 @@ void loop() {
   
   if(posCounter == 7 && listeningPort == 7) {
     int arrayPos = posCounter - 1;
+    if(tries > 10) {
+      tries = 0;
+      posCounter = 8;
+      currentBoard[arrayPos] = "-";
+    }
     while(RFID7.available() > 0 && RFID7.isListening()) {
+      tries = 0;
       String reading;
       uint8_t c = RFID7.read();
       posCounter = 8;
@@ -353,16 +369,20 @@ void loop() {
         String foundBlock = getBlock(reading);
         if(foundBlock.length() > 1) {
           currentBoard[arrayPos] = foundBlock;
-        } else {
-          currentBoard[arrayPos] = "Blank";
         }
-      } 
+      }
     }
   }
   
   if(posCounter == 8 && listeningPort == 8) {
     int arrayPos = posCounter - 1;
+    if(tries > 10) {
+      tries = 0;
+      posCounter = 9;
+      currentBoard[arrayPos] = "-";
+    }
     while(RFID8.available() > 0 && RFID8.isListening()) {
+      tries = 0;
       String reading;
       uint8_t c = RFID8.read();
       posCounter = 9;
@@ -373,15 +393,19 @@ void loop() {
         String foundBlock = getBlock(reading);
         if(foundBlock.length() > 1) {
           currentBoard[arrayPos] = foundBlock;
-        } else {
-          currentBoard[arrayPos] = "Blank";
         }
       } 
     }
   }
   if(posCounter == 9 && listeningPort == 9) {
     int arrayPos = posCounter - 1;
+    if(tries > 10) {
+      tries = 0;
+      posCounter = 10;
+      currentBoard[arrayPos] = "-";
+    }
     while(RFID9.available() > 0 && RFID9.isListening()) {
+      tries = 0;
       String reading;
       uint8_t c = RFID9.read();
       posCounter = 10;
@@ -392,17 +416,18 @@ void loop() {
         String foundBlock = getBlock(reading);
         if(foundBlock.length() > 1) {
           currentBoard[arrayPos] = foundBlock;
-        } else {
-          currentBoard[arrayPos] = "Blank";
         }
       } 
     }
   }
+  tries++;
   if(posCounter  >= 10) {
     posCounter = 1;
     printPosition();
     Serial.println(" ");
+    for(int i = 0; i < noOfReaders; i++) {
+      oldBoard[i] = currentBoard[i];
+    }
   }
-  Serial.print(posCounter);
   delay(10);
 }
