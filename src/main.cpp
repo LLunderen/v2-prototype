@@ -62,11 +62,6 @@ void gameWon() {// When the game is won a message is shown and the game is soft-
   while(true) {
   }
 }
-void resetPayload() {
-  for(int i = 0; i < 6; i++) {
-    Payload1[i] = 0;
-  }
-}
 void compareArrays() { // Compare the current board, to the winning board
   int winning = 0;
   for(int i = 0; i < noOfReaders; i++) {
@@ -79,7 +74,7 @@ void compareArrays() { // Compare the current board, to the winning board
   }
 }
 
-String getBlock(String b) { //Returns the block in a readable format
+String getBlock(String b) { //Returns the shuffeled blocks 
   if(b == block1) {
     return RFIDtagArray[0];
   }
@@ -109,7 +104,7 @@ String getBlock(String b) { //Returns the block in a readable format
   }
   return "";
 }
-void printPosition() { // Print the position of every block
+void printPosition() { // Print the position of every block on the board
   for(int i = 0; i < noOfReaders; i++) {
     Serial.print(currentBoard[i]);
     Serial.print(" ");
@@ -119,7 +114,7 @@ void printPosition() { // Print the position of every block
   }
   compareArrays();
 }
-void shuffleBlocks() {
+void shuffleBlocks() { //Randomizes the ID of each block
   for (int i=0; i < noOfReaders; i++) {
     int n = random(0, noOfReaders); 
     String temp = RFIDtagArray[n];
@@ -176,7 +171,7 @@ void listeningFunction(int p) { //Used to listen on the right port
   }
 }
 
-void prepareReader(int p) {
+void prepareReader(int p) { //Used to set which port should listen
   if(p != listeningPort) {
     turnOffAllPower();
     turnOnOnePin(p);
@@ -185,13 +180,13 @@ void prepareReader(int p) {
   }
   listeningPort = p;
 }
-void setup() {
+void setup() { //Using magic to make sure it doesnøt blow up
   randomSeed(analogRead(A0) + digitalRead(LED_BUILTIN));
   for (int i = 0; i < noOfReaders; i++) {
     pinMode(powerTransistorPins[i], OUTPUT);
   }
   turnOnAllPower();
-  Serial.begin(9600);  // start serial to PC 
+  Serial.begin(9600);
   //Starting serial with each reader
   RFID1.begin(9600);
   RFID2.begin(9600);
@@ -205,8 +200,8 @@ void setup() {
   shuffleBlocks();
   turnOffAllPower();
 }
-void loop() {
-  prepareReader(posCounter);  
+void loop() { //Using another spell to make it work
+  prepareReader(posCounter); //Makes the right reader is ready
 
   if(posCounter == 1 && listeningPort == 1) {
     int arrayPos = posCounter - 1;
