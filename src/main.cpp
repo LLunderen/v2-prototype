@@ -41,8 +41,8 @@ String block6 = "89029113118";
 String block7 = "77010614372";
 String block8 = "8902936100";
 String block9 = "750130229191";
-String RFIDtagArray[] = {"A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"};
-String winningArray[] = {"A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"};
+String RFIDtagArray[] = {"A", "B", "C", "D", "E", "F", "G", "H", "I"};
+String winningArray[] = {"A", "B", "C", "D", "E", "F", "G", "H", "I"};
 String currentBoard[] = {"-", "-", "-", "-", "-", "-", "-", "-", "-"};
 String oldBoard[9];
 
@@ -108,10 +108,8 @@ void printPosition() { // Print the position of every block on the board
   for(int i = 0; i < noOfReaders; i++) {
     Serial.print(currentBoard[i]);
     Serial.print(" ");
-    if((i + 1) % 3 == 0) {
-      Serial.println("");
-    }
   }
+  Serial.println("");
   compareArrays();
 }
 void shuffleBlocks() { //Randomizes the ID of each block
@@ -138,6 +136,14 @@ void turnOnOnePin(int position) { // Turns on one specific pin
 }
 void turnOffOnePin(int pin) { // Turns off a spceific pin
   digitalWrite(powerTransistorPins[pin], LOW);
+}
+bool onArray(String foundBlock) {
+  for(int i = 0; i < noOfReaders; i++) {
+    if(foundBlock == winningArray[i]) {
+      return true;
+    }
+  }
+  return false;
 }
 void listeningFunction(int p) { //Used to listen on the right port
   switch(p) {
@@ -220,7 +226,7 @@ void loop() { //Using another spell to make it work
           reading += Payload1[i];
         } 
         String foundBlock = getBlock(reading);
-        if(foundBlock.length() > 1) {
+        if(onArray(foundBlock)) {
           currentBoard[arrayPos] = foundBlock;
         }
       } 
@@ -244,9 +250,7 @@ void loop() { //Using another spell to make it work
           reading += Payload1[i];
         } 
         String foundBlock = getBlock(reading);
-        if(foundBlock.length() > 1) {
-          currentBoard[arrayPos] = foundBlock;
-        }
+if(onArray(foundBlock)) {           currentBoard[arrayPos] = foundBlock;         }
       } 
     }
   }
@@ -267,8 +271,8 @@ void loop() { //Using another spell to make it work
           reading += Payload1[i];
         } 
         String foundBlock = getBlock(reading);
-        if(foundBlock.length() > 1) {
-          currentBoard[arrayPos] = foundBlock;
+        if(onArray(foundBlock)) {           
+          currentBoard[arrayPos] = foundBlock;         
         }
       } 
     }
@@ -290,8 +294,8 @@ void loop() { //Using another spell to make it work
           reading += Payload1[i];
         } 
         String foundBlock = getBlock(reading);
-        if(foundBlock.length() > 1) {
-          currentBoard[arrayPos] = foundBlock;
+        if(onArray(foundBlock)) {           
+          currentBoard[arrayPos] = foundBlock;         
         }
       } 
     }
@@ -313,8 +317,8 @@ void loop() { //Using another spell to make it work
           reading += Payload1[i];
         } 
         String foundBlock = getBlock(reading);
-        if(foundBlock.length() > 1) {
-          currentBoard[arrayPos] = foundBlock;
+        if(onArray(foundBlock)) {           
+          currentBoard[arrayPos] = foundBlock;         
         }
       } 
     }
@@ -336,8 +340,8 @@ void loop() { //Using another spell to make it work
           reading += Payload1[i];
         } 
         String foundBlock = getBlock(reading);
-        if(foundBlock.length() > 1) {
-          currentBoard[arrayPos] = foundBlock;
+        if(onArray(foundBlock)) {           
+          currentBoard[arrayPos] = foundBlock;         
         }
       } 
     }
@@ -360,8 +364,8 @@ void loop() { //Using another spell to make it work
           reading += Payload1[i];
         } 
         String foundBlock = getBlock(reading);
-        if(foundBlock.length() > 1) {
-          currentBoard[arrayPos] = foundBlock;
+        if(onArray(foundBlock)) {           
+          currentBoard[arrayPos] = foundBlock;         
         }
       }
     }
@@ -384,8 +388,8 @@ void loop() { //Using another spell to make it work
           reading += Payload1[i];
         } 
         String foundBlock = getBlock(reading);
-        if(foundBlock.length() > 1) {
-          currentBoard[arrayPos] = foundBlock;
+        if(onArray(foundBlock)) {           
+          currentBoard[arrayPos] = foundBlock;         
         }
       } 
     }
@@ -407,8 +411,8 @@ void loop() { //Using another spell to make it work
           reading += Payload1[i];
         } 
         String foundBlock = getBlock(reading);
-        if(foundBlock.length() > 1) {
-          currentBoard[arrayPos] = foundBlock;
+        if(onArray(foundBlock)) {           
+          currentBoard[arrayPos] = foundBlock;         
         }
       } 
     }
@@ -417,7 +421,6 @@ void loop() { //Using another spell to make it work
   if(posCounter  >= 10) {
     posCounter = 1;
     printPosition();
-    Serial.println(" ");
     for(int i = 0; i < noOfReaders; i++) {
       oldBoard[i] = currentBoard[i];
     }
